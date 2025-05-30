@@ -16,13 +16,13 @@ const DEFAULT_SETTINGS: ClassroomServerSettings = {
 }
 
 const version = "Classroom Server version 0.0.1 (05292025)";
-let classServer: Server;
 
 
 
 export default class ClassroomServer extends Plugin {
 	settings: ClassroomServerSettings;
 	keystring: string;
+	classServer: Server;
 
 	async onload() {
 		await this.loadSettings();
@@ -31,6 +31,10 @@ export default class ClassroomServer extends Plugin {
 
 		// This creates an icon in the left ribbon.
 		const ribbonIconEl = this.addRibbonIcon('file-cog', 'Classroom Server Plugin', (evt: MouseEvent) => {
+			if (this.classServer !== undefined && this.classServer.stopped()) {
+				console.log("Stopping server...");
+				this.classServer.stop();
+			} else {
 			// Called when the user clicks the icon.
 			new SetupModel(this.app,  () => {
 				const view = this.app.workspace.getActiveViewOfType(MarkdownView);
@@ -52,14 +56,19 @@ export default class ClassroomServer extends Plugin {
 
 					//(new Alert(this.app, "IP Address", "Start your client document by connecting to "+Utilities.getIPAddress())).open();
 
-					classServer = new Server("CSCI 112", "colorify", view);
-					classServer.start();
+					Utilities.getIPAddress().then(ipAddress => {
+						console.log("IP Address: " + ipAddress);
+						Utilities.insertText(view, "Start your client document by connecting to "+ipAddress + "\n\n");
+					}
+					);
+					this.classServer = new Server("CSCI 112", "colorify", view);
+					this.classServer.start();
 				} else {
 					new Notice('No active Markdown view found.');
 				}
 
 		}).open();
-	
+			}
 		});
 		// Perform additional things with the ribbon
 		ribbonIconEl.addClass('my-classroom-server-class');
@@ -126,9 +135,9 @@ export default class ClassroomServer extends Plugin {
 
 	async handleKeys(kbe: KeyboardEvent) {
 		console.log("Key pressed: " + kbe.key);
-		if (classServer != undefined) {
+		if (this.classServer != undefined) {
 			if (kbe.code == "Enter") {
-				classServer.handleMyKeys(keystring);
+				this.classServer.handleMyKeys(this.keystring);
 				this.keystring = "";
 			} else if (kbe.code != "ShiftLeft" && kbe.code != "ShiftRight" && kbe.code != "Backspace" && kbe.code != "CapsLock") {
 				this.keystring += kbe.key;
@@ -137,7 +146,7 @@ export default class ClassroomServer extends Plugin {
 	}
 	
 	onunload() {
-		classServer.stop();
+		this.classServer.stop();
 	}
 
 	async loadSettings() {

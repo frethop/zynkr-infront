@@ -1,18 +1,27 @@
-import { os }  from 'os';
+import { MarkdownView } from 'obsidian';
+import os from 'os';
 
 export default class Utilities {
 
-    static getIPAddress(): string {
-        let IP = "";
-        fetch("https://ipinfo.io/json") 
-                .then(response => response.json())
-                .then(data => {
-					IP = data.ip;
-                })
-				.catch(error => {
-					console.error("Error fetching IP address:", error);
-                    IP = "Error fetching IP address";
-                });
-          return IP;  
+    static async getIPAddress(): Promise<string> {
+
+        const interfaces = os.networkInterfaces();
+
+        for (const name of Object.keys(interfaces)) {
+            for (const net of interfaces[name]) {
+                if (net.family === 'IPv4' && !net.internal) {
+                return net.address;
+                }
+            }
+        }
+        return "";
+    }
+
+    static insertText(view: MarkdownView, text: string) {
+        if (view) {
+            view.editor.replaceRange(text, view.editor.getCursor());
+        } else {
+            console.error("No active Markdown view found.");
+        }
     }
 }

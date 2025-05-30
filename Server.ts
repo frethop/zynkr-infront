@@ -113,6 +113,14 @@ export class Server {
         }
     }
 
+    stopped(): boolean {
+        if (this.classSocket === undefined) {
+            return true;
+        } else {
+            return this.classSocket.destroyed;
+        }
+    }
+
     handleMyKeys(key: string) {
         console.log("Key pressed: " + key);
         this.shaper.shapeThis("Server", key);
