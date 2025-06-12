@@ -1,9 +1,11 @@
 export class Command {
 
+    static readonly CHECK = 0xFE;
     static readonly DUMP = 0xFF;
     static readonly QUIT = 0x00;
     static readonly REQUEST_TO_JOIN = 0x01;
     static readonly TEXT = 0x02;
+    static readonly CONTENTS = 0x03;
     
     commandByte: number;
     source: string;

@@ -36,15 +36,15 @@ export default class ClassroomServer extends Plugin {
 				this.classServer.stop();
 			} else {
 			// Called when the user clicks the icon.
-			new SetupModel(this.app,  () => {
+			new SetupModel(this.app,  (className: string, shaper: string) => {
 				const view = this.app.workspace.getActiveViewOfType(MarkdownView);
 				if (view) {
 				//this.app.workspace.containerEl.children[2].empty();
 					this.registerEvent(
         				this.app.workspace.on('editor-menu', (menu, editor, info) => {
         					menu.addItem((item) => {
-          						item.setTitle('My Custom Action')
-              						.setIcon('dice') // Choose any icon from Lucide
+          						item.setTitle('Show names')
+              						.setIcon('check') // Choose any icon from Lucide
               						.onClick(() => {
                 						new Notice("CLICK!");
               						});
@@ -52,17 +52,13 @@ export default class ClassroomServer extends Plugin {
 						})	
 					);
 
-					//const el = this.app.workspace.containerEl.children[2] as HTMLElement; 
-
-					//(new Alert(this.app, "IP Address", "Start your client document by connecting to "+Utilities.getIPAddress())).open();
-
-					Utilities.getIPAddress().then(ipAddress => {
-						console.log("IP Address: " + ipAddress);
-						Utilities.insertText(view, "Start your client document by connecting to "+ipAddress + "\n\n");
+					const ipAddress = Utilities.getIPAddress();
+					console.log("IP Address: " + ipAddress);
+					this.classServer = new Server(this.app, className, shaper, view);
+					if (this.classServer.error >= 0) {
+						Utilities.insertText(view, "## Start your client document by connecting to "+ipAddress + "\n\n");
+						this.classServer.start();
 					}
-					);
-					this.classServer = new Server("CSCI 112", "colorify", view);
-					this.classServer.start();
 				} else {
 					new Notice('No active Markdown view found.');
 				}
@@ -73,14 +69,6 @@ export default class ClassroomServer extends Plugin {
 		// Perform additional things with the ribbon
 		ribbonIconEl.addClass('my-classroom-server-class');
 
-		// This adds a simple command that can be triggered anywhere
-		this.addCommand({
-			id: 'open-sample-modal-simple',
-			name: 'Open sample modal (simple)',
-			callback: () => {
-				new SampleModal(this.app).open();
-			}
-		});
 		// This adds an editor command that can perform some operation on the current editor instance
 		this.addCommand({
 			id: 'sample-editor-command',
@@ -92,17 +80,14 @@ export default class ClassroomServer extends Plugin {
 		});
 		// This adds a complex command that can check whether the current state of the app allows execution of the command
 		this.addCommand({
-			id: 'open-sample-modal-complex',
-			name: 'Open sample modal (complex)',
-			checkCallback: (checking: boolean) => {
+			id: 'debug-info-command',
+			name: 'Dump info',
+			editorCallback: (editor: Editor, view: MarkdownView) => {
 				// Conditions to check
-				const markdownView = this.app.workspace.getActiveViewOfType(MarkdownView);
-				if (markdownView) {
-					// If checking is true, we're simply "checking" if the command can be run.
-					// If checking is false, then we want to actually perform the operation.
-					if (!checking) {
-						new SampleModal(this.app).open();
-					}
+				if (view) {
+					let dumpstring = "Dumping user table for " + this.classServer.className + "\n";``
+                    dumpstring += this.classServer.dumpUserTable();
+                    Utilities.insertText(view, dumpstring);
 
 					// This command will only show up in Command Palette when the check function returns true
 					return true;

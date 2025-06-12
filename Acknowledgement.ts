@@ -12,7 +12,7 @@ export class Acknowledgement {
 
     static send(socket: net.Socket, ack: number) {
         const buffer = Buffer.alloc(1);
-        buffer[0] = Acknowledgement.OK;
+        buffer[0] = ack & 0xFF; // Ensure we only use the last byte
         socket.write(buffer);
         console.log("Acknowledgement sent.");
     }

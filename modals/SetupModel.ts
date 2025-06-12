@@ -11,25 +11,22 @@ import {
 } from "obsidian";
 
 export class SetupModel extends Modal {
-	callbackOnClose;
+	callbackOnClose(cn: string, sh: string)	: void;
 	name: string;
-	possible: number;
-	catname: string;
-	scores: Map<string, number>;
+	shaperName: string;
 	fields: TextComponent[];
 	possibleField: Setting;
 	ec: boolean;
 	enterhandler: KeymapEventHandler;
 	field: number;
 
-	shapers = [ "Colorify" ];
+	shapers = [ "Colorify", "Box", "Word Cloud" ];
 
-	constructor(app: App, callbackOnClose: () => void) {
+	constructor(app: App, callbackOnClose: (cname: string, sh: string) => void) {
 		super(app);
 		this.callbackOnClose = callbackOnClose;
-		this.scores = new Map<string, number>();
 		this.name = "";
-		this.possible = 0;
+		this.shaperName = "Colorify"; // Default shaper
 	}
 
 	onOpen() {
@@ -48,7 +45,8 @@ export class SetupModel extends Modal {
 		const shaperDropdown = 
 			new Setting(contentEl).setName("Specify a response shaper").addDropdown( (component) => 
 				component.setValue("Dropdown").onChange( (value) => {
-			
+					this.shaperName = value;
+					console.log("Shaper selected: " + this.shaperName);
 				})
 			);
 		
@@ -68,7 +66,7 @@ export class SetupModel extends Modal {
 				.setCta()
 				.onClick(() => {
 					this.close();
-					this.callbackOnClose();
+					this.callbackOnClose(this.name, this.shaperName);
 				})
 		);
 	}

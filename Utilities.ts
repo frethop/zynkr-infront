@@ -3,7 +3,7 @@ import os from 'os';
 
 export default class Utilities {
 
-    static async getIPAddress(): Promise<string> {
+    static getIPAddress(): string {
 
         const interfaces = os.networkInterfaces();
 
@@ -20,6 +20,7 @@ export default class Utilities {
     static insertText(view: MarkdownView, text: string) {
         if (view) {
             view.editor.replaceRange(text, view.editor.getCursor());
+            view.editor.setCursor(view.editor.getCursor().line + 1, 0);
         } else {
             console.error("No active Markdown view found.");
         }

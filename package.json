@@ -1,6 +1,6 @@
 {
-	"name": "classroom-server",
-	"version": "0.0.1",
+	"name": "zynkr-server",
+	"version": "0.0.2",
 	"description": "This is a sample plugin for Obsidian (https://obsidian.md)",
 	"main": "main.js",
 	"scripts": {
@@ -20,5 +20,8 @@
 		"obsidian": "latest",
 		"tslib": "2.4.0",
 		"typescript": "4.7.4"
+	},
+	"dependencies": {
+		"wordcloud": "^1.2.3"
 	}
 }

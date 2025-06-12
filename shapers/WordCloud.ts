@@ -1,12 +1,15 @@
 import { Editor, MarkdownView, View } from "obsidian";
 
 import { Shaper } from "./Shaper";
+import { WordCloud } from 'wordcloud';
 
 export class Colorify extends Shaper {
 
     colorTable: Map<string, string>;
     div: HTMLDivElement;
     editor: Editor;
+
+    cloud: WordCloud | null = null;
 
     constructor(containerV: View) {
         super(containerV);
